@@ -16,42 +16,48 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
-  height: 100vh;
-  min-height: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
   color: var(--white);
   font-family: system-ui, Segoe UI, Arial, sans-serif;
   background: radial-gradient(ellipse at top, #183d2d 0%, #07120f 65%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 5px;
-  overflow: hidden;
+  padding: 4px;
 }
 
 .shell {
-  width: min(1000px, 100%);
+  width: min(100%, 900px, calc((100vh - 90px) * 16 / 9));
   max-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 3px;
 }
 
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin-bottom: 4px;
+  gap: 4px;
+  flex-wrap: nowrap;
+  margin: 0;
 }
 
 .brand {
   font-weight: 1000;
-  letter-spacing: 2px;
-  font-size: clamp(17px, 3vw, 24px);
+  letter-spacing: 1px;
+  font-size: clamp(12px, 2vw, 19px);
   line-height: 1;
+  white-space: nowrap;
 }
 
 .brand span {
@@ -60,26 +66,28 @@ header {
 
 .sub {
   color: #a8c6b4;
-  font-size: 8px;
-  letter-spacing: 2px;
-  margin-top: 3px;
+  font-size: 7px;
+  letter-spacing: 1px;
+  margin-top: 2px;
 }
 
 .top-controls {
   display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+  gap: 3px;
+  flex-wrap: nowrap;
 }
 
-button, select {
+button,
+select {
   border: 1px solid #355747;
   background: #12271e;
   color: var(--white);
-  padding: 5px 8px;
-  border-radius: 8px;
-  font-size: 10px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 9px;
   font-weight: 800;
   cursor: pointer;
+  max-width: 100%;
 }
 
 button:hover {
@@ -95,21 +103,28 @@ button.primary {
 .scoreboard {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  gap: 5px;
+  gap: 4px;
   align-items: center;
   background: linear-gradient(135deg, #132b20, #0b1712);
   border: 1px solid #315342;
-  border-radius: 10px 10px 0 0;
-  padding: 4px 8px;
+  border-radius: 7px 7px 0 0;
+  padding: 3px 7px;
 }
 
 .team {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10px;
+  gap: 4px;
+  font-size: 9px;
   font-weight: 900;
-  letter-spacing: .5px;
+  letter-spacing: 0;
+  min-width: 0;
+}
+
+.team span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .team.right {
@@ -119,11 +134,10 @@ button.primary {
 
 .dot {
   flex-shrink: 0;
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #42c9ff;
-  box-shadow: 0 0 10px currentColor;
 }
 
 .right .dot {
@@ -131,16 +145,17 @@ button.primary {
 }
 
 .score {
-  font-size: 25px;
+  font-size: 20px;
   font-weight: 1000;
-  min-width: 55px;
+  min-width: 45px;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .clock {
   text-align: center;
-  font-size: 8px;
+  font-size: 7px;
   color: #a8c6b4;
   font-weight: 800;
   letter-spacing: 1px;
@@ -149,17 +164,18 @@ button.primary {
 .clock strong {
   display: block;
   color: var(--lime);
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .canvas-wrap {
   position: relative;
-  border: 1px solid #315342;
-  border-top: 0;
-  overflow: hidden;
-  background: #126b43;
-  box-shadow: 0 10px 30px #0008;
   width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #315342;
+  background: #126b43;
+  box-shadow: 0 5px 15px #0008;
+  flex: 0 1 auto;
 }
 
 canvas {
@@ -167,6 +183,8 @@ canvas {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 105px);
+  object-fit: contain;
   outline: none;
 }
 
@@ -177,25 +195,25 @@ canvas {
   align-items: center;
   justify-content: center;
   background: #06110dcc;
-  backdrop-filter: blur(4px);
-  padding: 6px;
+  backdrop-filter: blur(3px);
+  padding: 4px;
 }
 
 .menu {
-  width: min(370px, 100%);
+  width: min(330px, 100%);
   max-height: 100%;
   overflow-y: auto;
   background: linear-gradient(145deg, #172d22, #0a1711);
   border: 1px solid #4c765a;
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 12px 35px #0009;
+  border-radius: 10px;
+  padding: 9px;
+  box-shadow: 0 8px 20px #0009;
   text-align: center;
 }
 
 .menu h1 {
-  font-size: clamp(22px, 4vw, 30px);
-  margin: 0 0 5px;
+  font-size: clamp(17px, 3vw, 25px);
+  margin: 0 0 4px;
   line-height: 1;
   font-weight: 1000;
   letter-spacing: -1px;
@@ -208,40 +226,52 @@ canvas {
 
 .menu p {
   color: #b4cdbd;
-  font-size: 11px;
-  line-height: 1.4;
-  margin: 6px 0;
+  font-size: 10px;
+  line-height: 1.3;
+  margin: 4px 0;
+}
+
+.menu label {
+  font-size: 9px !important;
+  margin-top: 6px !important;
+}
+
+.menu select {
+  margin-top: 3px !important;
+  padding: 4px;
+  font-size: 10px;
 }
 
 .mode-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 7px;
-  margin: 8px 0 5px;
+  gap: 5px;
+  margin: 6px 0 4px;
 }
 
 .mode-buttons button {
-  padding: 8px 5px;
+  padding: 6px 3px;
+  font-size: 10px;
 }
 
 .small {
   color: #8eab99;
-  font-size: 9px !important;
+  font-size: 8px !important;
 }
 
 .toast {
   position: absolute;
-  top: 13%;
+  top: 10%;
   left: 50%;
   transform: translateX(-50%);
   background: var(--lime);
   color: #101a0c;
-  padding: 7px 14px;
-  border-radius: 30px;
-  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
   font-weight: 1000;
   letter-spacing: 1px;
-  box-shadow: 0 0 25px #c7ff3855;
+  box-shadow: 0 0 15px #c7ff3855;
   opacity: 0;
   transition: opacity .15s;
   pointer-events: none;
@@ -255,101 +285,77 @@ canvas {
 .bottom {
   display: flex;
   justify-content: space-between;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 4px;
   color: #8eab99;
-  font-size: 9px;
-  padding: 3px 2px;
+  font-size: 8px;
+  padding: 1px;
 }
 
-@media (max-height: 650px) {
-  header {
-    margin-bottom: 2px;
+@media (max-height: 700px) {
+  .shell {
+    width: min(100%, 820px, calc((100vh - 70px) * 16 / 9));
+    gap: 2px;
   }
 
   .brand {
-    font-size: 16px;
+    font-size: 14px;
   }
 
-  button, select {
-    padding: 4px 5px;
-    font-size: 9px;
+  .sub {
+    font-size: 6px;
+  }
+
+  button,
+  select {
+    padding: 3px 5px;
+    font-size: 8px;
   }
 
   .scoreboard {
-    padding: 2px 6px;
+    padding: 2px 5px;
   }
 
   .score {
-    font-size: 20px;
+    font-size: 17px;
   }
 
   .clock strong {
-    font-size: 11px;
-  }
-
-  .menu {
-    padding: 7px;
-  }
-
-  .menu h1 {
-    font-size: 21px;
-  }
-
-  .menu p {
     font-size: 10px;
-    margin: 4px 0;
   }
 
-  .mode-buttons {
-    margin: 5px 0 3px;
-  }
-
-  .mode-buttons button {
-    padding: 5px;
+  canvas {
+    max-height: calc(100vh - 80px);
   }
 
   .bottom {
-    font-size: 8px;
-    padding: 2px;
+    font-size: 7px;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 600px) {
   body {
-    padding: 3px;
+    padding: 2px;
   }
 
   header {
-    gap: 4px;
+    flex-wrap: wrap;
   }
 
   .top-controls {
-    gap: 3px;
+    gap: 2px;
   }
 
   .team {
-    font-size: 8px;
-    gap: 3px;
-    letter-spacing: 0;
-  }
-
-  .scoreboard {
-    padding: 3px;
+    font-size: 7px;
   }
 
   .score {
-    min-width: 42px;
-    font-size: 20px;
-  }
-
-  .dot {
-    width: 7px;
-    height: 7px;
+    min-width: 36px;
+    font-size: 17px;
   }
 
   .bottom {
-    font-size: 8px;
+    font-size: 7px;
   }
 }
 </style>
