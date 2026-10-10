@@ -408,10 +408,10 @@ canvas {
   const keys = Object.create(null);
   let mode='ai', difficulty='medium', running=false, paused=false, sound=true, time=90, scoreL=0, scoreR=0;
   let last=0, elapsed=0, toastTimer=0, goalFreeze=0, gameOver=false, ballSpin=0;
-  const ball={x:W/2,y:H/2,vx:0,vy:0,r:10};
+  const ball = {x:W/2, y:H/2, vx:0, vy:0, r:6};
   const players=[];
   function player(x,y,color,controls,side) {
-    return {x,y,vx:0,vy:0,r:18,color,controls,side,stun:0,stunCD:0,flash:0,aimX:side===0?1:-1,aimY:0,hasBall:false};
+    return {x,y,vx:0,vy:0,r:12,color,controls,side,stun:0,stunCD:0,flash:0,aimX:side===0?1:-1,aimY:0,hasBall:false};
   }
   players[0]=player(260,270,'#42c9ff',{up:'w',down:'s',left:'a',right:'d',shoot:'c',stun:'v'},0);
   players[1]=player(700,270,'#ff5367',{up:'arrowup',down:'arrowdown',left:'arrowleft',right:'arrowright',shoot:'k',stun:'l'},1);
@@ -459,7 +459,7 @@ canvas {
   }
   function shoot(p) {
     const d=dist(p,ball);
-    if(d<72) {
+    if(d<58) {
       let dx=ball.x-p.x,dy=ball.y-p.y,mag=Math.hypot(dx,dy);
       if(mag<.01){dx=p.aimX;dy=p.aimY;mag=1;}
       dx/=mag;dy/=mag;
@@ -527,7 +527,7 @@ canvas {
       const d=dist(p,ball);
       // Keep the ball close to a moving player instead of bouncing it away on every touch.
       // A strong shot releases the ball and temporarily prevents auto-dribbling.
-      if(d<p.r+ball.r+9 && ball.shotLock!==p.side) {
+      if(d<p.r+ball.r+6 && ball.shotLock!==p.side) {
         dribbler=p;
         const dx=(ball.x-p.x)/(d||1),dy=(ball.y-p.y)/(d||1);
         const forwardX=p.aimX || (p.side===0?1:-1);
@@ -589,35 +589,132 @@ canvas {
     // stadium glow
     const grad=ctx.createRadialGradient(W/2,H/2,80,W/2,H/2,510);grad.addColorStop(0,'#ffffff00');grad.addColorStop(1,'#020a0780');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
   }
-  function drawPlayer(p) {
-    ctx.save();ctx.translate(p.x,p.y);
-    ctx.fillStyle='#04120c55';ctx.beginPath();ctx.ellipse(3,9,19,12,0,0,Math.PI*2);ctx.fill();
-    if(p.stunCD<=0){ctx.strokeStyle=p.color+'88';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,25+Math.sin(elapsed*9)*2,0,Math.PI*2);ctx.stroke();}
-    if(p.stun>0){ctx.strokeStyle='#f7ff66';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,27,0,Math.PI*2);ctx.stroke();}
-    const g=ctx.createRadialGradient(-7,-8,2,0,0,23);g.addColorStop(0,'#ffffff');g.addColorStop(.18,p.color);g.addColorStop(1,p.color+'99');
-    ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#f5ffe9';ctx.lineWidth=2;ctx.stroke();
-    ctx.fillStyle='#06120e';ctx.beginPath();ctx.arc(5,-4,3,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#f5ffe9';ctx.font='900 11px system-ui';ctx.textAlign='center';ctx.fillText(p.side===0?'1':'2',0,4);
-    if(p.flash>0){ctx.strokeStyle='#eaff7a';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,32,0,Math.PI*2);ctx.stroke();}
-    // stun cooldown ring
-    ctx.strokeStyle='#07120f';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,30,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-clamp(p.stunCD/3.6,0,1)));ctx.stroke();
-    ctx.restore();
-  }
-  function drawBall() {
-    ctx.save();ctx.translate(ball.x,ball.y);
-    ctx.fillStyle='#06120d66';ctx.beginPath();ctx.ellipse(3,7,12,7,0,0,Math.PI*2);ctx.fill();
-    ctx.rotate(ballSpin);
-    ctx.fillStyle='#fffdf2';ctx.beginPath();ctx.arc(0,0,ball.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#17231c';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.fillStyle='#18251d';
-    // Pentagon panels make rotation visible while the ball rolls.
+function drawPlayer(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.scale(0.7, 0.7);
+
+  ctx.fillStyle = '#04120c55';
+  ctx.beginPath();
+  ctx.ellipse(3, 9, 19, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (p.stunCD <= 0) {
+    ctx.strokeStyle = p.color + '88';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5;const x=Math.cos(a)*4.2,y=Math.sin(a)*4.2;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
-    ctx.closePath();ctx.fill();
-    for(let i=0;i<5;i++){const a=i*Math.PI*2/5;ctx.beginPath();ctx.moveTo(Math.cos(a)*4.2,Math.sin(a)*4.2);ctx.lineTo(Math.cos(a)*8.5,Math.sin(a)*8.5);ctx.strokeStyle='#18251d';ctx.lineWidth=1;ctx.stroke();}
-    ctx.restore();
-    if(Math.hypot(ball.vx,ball.vy)>300){ctx.strokeStyle='#ffffff77';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(ball.x-ball.vx*.035,ball.y-ball.vy*.035);ctx.lineTo(ball.x-ball.vx*.008,ball.y-ball.vy*.008);ctx.stroke();}
+    ctx.arc(0, 0, 25 + Math.sin(elapsed * 9) * 2, 0, Math.PI * 2);
+    ctx.stroke();
   }
+
+  if (p.stun > 0) {
+    ctx.strokeStyle = '#f7ff66';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 27, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  const g = ctx.createRadialGradient(-7, -8, 2, 0, 0, 23);
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(.18, p.color);
+  g.addColorStop(1, p.color + '99');
+
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#f5ffe9';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = '#06120e';
+  ctx.beginPath();
+  ctx.arc(5, -4, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#f5ffe9';
+  ctx.font = '900 11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(p.side === 0 ? '1' : '2', 0, 4);
+
+  if (p.flash > 0) {
+    ctx.strokeStyle = '#eaff7a';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 32, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = '#07120f';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(
+    0, 0, 30, -Math.PI / 2,
+    -Math.PI / 2 + Math.PI * 2 *
+    (1 - clamp(p.stunCD / 3.6, 0, 1))
+  );
+  ctx.stroke();
+
+  ctx.restore();
+}
+function drawBall() {
+  ctx.save();
+  ctx.translate(ball.x, ball.y);
+  ctx.scale(0.7, 0.7);
+
+  ctx.fillStyle = '#06120d66';
+  ctx.beginPath();
+  ctx.ellipse(3, 7, 12, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.rotate(ballSpin);
+  ctx.fillStyle = '#fffdf2';
+  ctx.beginPath();
+  ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = '#17231c';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.fillStyle = '#18251d';
+  ctx.beginPath();
+
+  for (let i = 0; i < 5; i++) {
+    const a = -Math.PI / 2 + i * Math.PI * 2 / 5;
+    const x = Math.cos(a) * 4.2;
+    const y = Math.sin(a) * 4.2;
+
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+
+  ctx.closePath();
+  ctx.fill();
+
+  for (let i = 0; i < 5; i++) {
+    const a = i * Math.PI * 2 / 5;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * 4.2, Math.sin(a) * 4.2);
+    ctx.lineTo(Math.cos(a) * 8.5, Math.sin(a) * 8.5);
+    ctx.strokeStyle = '#18251d';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  if (Math.hypot(ball.vx, ball.vy) > 300) {
+    ctx.strokeStyle = '#ffffff77';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(ball.x - ball.vx * .035, ball.y - ball.vy * .035);
+    ctx.lineTo(ball.x - ball.vx * .008, ball.y - ball.vy * .008);
+    ctx.stroke();
+  }
+}
   function draw() {
     drawField();drawBall();players.forEach(drawPlayer);
     // Compact power / cooldown indicators
