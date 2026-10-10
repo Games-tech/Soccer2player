@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STREET SOCCER: Showdown</title>
+<title>2PLAYER SOCCER: Showdown</title>
 <style>
   :root { --lime:#c7ff38; --dark:#07120f; --panel:#101e19; --white:#f5ffe9; }
   * { box-sizing:border-box; }
@@ -46,7 +46,7 @@
 <body>
 <div class="shell">
   <header>
-    <div><div class="brand">STREET <span>SOCCER</span></div><div class="sub">SHOWDOWN • SKILL WINS</div></div>
+    <div><div class="brand">2PLAYER <span>SOCCER</span></div><div class="sub">SHOWDOWN • SKILL WINS</div></div>
     <div class="top-controls">
       <button id="homeBtn">⌂ Home</button>
       <button id="pauseBtn">Ⅱ Pause</button>
@@ -57,7 +57,7 @@
   <div class="scoreboard">
     <div class="team"><i class="dot"></i><span id="leftName">BLUE STRIKERS</span></div>
     <div><div class="score"><span id="scoreL">0</span><span style="color:#648272"> : </span><span id="scoreR">0</span></div><div class="clock"><strong id="clock">90</strong> MATCH TIME</div></div>
-    <div class="team right"><span id="rightName">RED RIVALS</span><i class="dot"></i></div>
+    <div class="team right"><span id="rightName">RED STRIKERS</span><i class="dot"></i></div>
   </div>
   <div class="canvas-wrap">
     <canvas id="game" width="960" height="540" tabindex="0" aria-label="Soccer game"></canvas>
@@ -75,14 +75,14 @@
         </select>
         <div class="mode-buttons">
           <button class="primary" id="aiBtn">🤖 Play vs AI</button>
-          <button id="twoBtn">⚡ 2 Player</button>
+          <button id="twoBtn">⚽ 2 Player</button>
         </div>
         <p class="small">BLUE: WASD move · C shoot · V stun<br>RED / PLAYER 2: Arrow keys move · K shoot · L stun</p>
         <p class="small">Tip: Get close to the ball before shooting. Stun has a cooldown!</p>
       </div>
     </div>
   </div>
-  <div class="bottom"><span>⚽ Shoot • ⚡ Stun • 🏆 Score goals</span><span>Best of the pitch — first to lead when time runs out wins.</span></div>
+  <div class="bottom"><span>⚽ Shoot • ⚡ Stun • 🥅 Score goals</span><span>Best of the pitch — first to lead when time runs out wins.</span></div>
 </div>
 <script>
 (() => {
