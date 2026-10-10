@@ -467,7 +467,7 @@ canvas {
       const goalX=p.side===0?field.x+field.w+30:field.x-30;
       dx=dx*.42+Math.sign(goalX-ball.x)*.82;dy=dy*.42+dy*.58;
       mag=Math.hypot(dx,dy)||1;dx/=mag;dy/=mag;
-      ball.vx=dx*610+p.vx*.35;ball.vy=dy*610+p.vy*.35;
+      ball.vx=dx*380+p.vx*.20;ball.vy=dy*380+p.vy*.20;
       ball.shotLock=p.side;ball.shotLockTimer=.42;
       beep(250,.1,'square',.04);p.flash=.14;showToast('💥 POWER SHOT!');
     } else {
@@ -546,7 +546,7 @@ canvas {
     }
     if(!dribbler) {
       ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
-      const drag=Math.pow(.986,dt*60);ball.vx*=drag;ball.vy*=drag;
+      const drag=Math.pow(.975,dt*60);ball.vx*=drag;ball.vy*=drag;
     }
     // Visual roll follows the ball's actual movement speed.
     ballSpin += Math.hypot(ball.vx,ball.vy)*dt/ball.r;
