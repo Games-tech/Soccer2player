@@ -358,6 +358,11 @@ canvas {
     font-size: 7px;
   }
 }
+
+.character-picks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 4px;text-align:left}
+.character-picks label{display:block;color:var(--lime);font-size:9px;font-weight:900}
+.character-picks select{width:100%;margin-top:3px;padding:5px;font-size:9px;background:#10261c;color:#f5ffe9;border:1px solid #42654f;border-radius:5px;color-scheme:dark}
+.character-stats{color:#b4cdbd;font-size:9px;line-height:1.4;margin:4px 0 6px}
 </style>
 </head>
 <body>
@@ -390,7 +395,12 @@ canvas {
           <option value="hard">Hard — fast and aggressive</option>
           <option value="expert">Expert — elite rival</option>
         </select>
-        <div class="mode-buttons">
+        <div class="character-picks">
+         <div><label for="blueCharacter">🔵 BLUE CHARACTER</label><select id="blueCharacter"></select></div>
+         <div><label for="redCharacter">🔴 RED / AI CHARACTER</label><select id="redCharacter"></select></div>
+       </div>
+       <p class="character-stats" id="characterStats">Choose your players.</p>
+       <div class="mode-buttons">
           <button class="primary" id="aiBtn">🤖 Play vs AI</button>
           <button id="twoBtn">⚽ 2 Player</button>
         </div>
@@ -410,8 +420,30 @@ canvas {
   let last=0, elapsed=0, toastTimer=0, goalFreeze=0, gameOver=false, ballSpin=0;
   const ball = {x:W/2, y:H/2, vx:0, vy:0, r:6};
   const players=[];
+  const characters = {
+    balanced:{name:'All-Rounder',speed:260,shot:610},
+    flash:{name:'Flash',speed:325,shot:500},
+    cannon:{name:'Cannon',speed:215,shot:760},
+    sniper:{name:'Sniper',speed:245,shot:700},
+    rocket:{name:'Rocket',speed:290,shot:650},
+    trickster:{name:'Trickster',speed:305,shot:555}
+  };
+  let selectedBlue='balanced', selectedRed='sniper';
   function player(x,y,color,controls,side) {
-    return {x,y,vx:0,vy:0,r:12,color,controls,side,stun:0,stunCD:0,flash:0,aimX:side===0?1:-1,aimY:0,hasBall:false};
+    const characterId=side===0?selectedBlue:selectedRed;
+    return {x,y,vx:0,vy:0,r:12,color,controls,side,stun:0,stunCD:0,flash:0,aimX:side===0?1:-1,aimY:0,hasBall:false,characterId,stats:characters[characterId]};
+  }
+  function fillCharacterPickers() {
+    const blue=document.getElementById('blueCharacter'), red=document.getElementById('redCharacter');
+    if(!blue||!red)return;
+    const options=Object.entries(characters).map(([id,c])=>`<option value="${id}">${c.name} — ${c.speed} speed / ${c.shot} shot</option>`).join('');
+    blue.innerHTML=options;red.innerHTML=options;blue.value=selectedBlue;red.value=selectedRed;
+    const update=()=>{
+      selectedBlue=blue.value;selectedRed=red.value;
+      const b=characters[selectedBlue],r=characters[selectedRed],el=document.getElementById('characterStats');
+      if(el)el.innerHTML=`<b>Blue — ${b.name}:</b> Speed ${b.speed} · Shot ${b.shot}<br><b>Red — ${r.name}:</b> Speed ${r.speed} · Shot ${r.shot}`;
+    };
+    blue.onchange=update;red.onchange=update;update();
   }
   players[0]=player(260,270,'#42c9ff',{up:'w',down:'s',left:'a',right:'d',shoot:'c',stun:'v'},0);
   players[1]=player(700,270,'#ff5367',{up:'arrowup',down:'arrowdown',left:'arrowleft',right:'arrowright',shoot:'k',stun:'l'},1);
@@ -429,6 +461,11 @@ canvas {
     ball.x=W/2;ball.y=H/2;ball.vx=ball.vy=0;ball.shotLock=null;ball.shotLockTimer=0;goalFreeze=.65;
   }
   function start(m) {
+    const bp=document.getElementById('blueCharacter'), rp=document.getElementById('redCharacter');
+    if(bp&&characters[bp.value])selectedBlue=bp.value;
+    if(rp&&characters[rp.value])selectedRed=rp.value;
+    players[0].characterId=selectedBlue;players[0].stats=characters[selectedBlue];
+    players[1].characterId=selectedRed;players[1].stats=characters[selectedRed];
     mode=m;difficulty=document.getElementById('difficulty')?.value||difficulty;running=true;paused=false;time=90;elapsed=0;scoreL=scoreR=0;gameOver=false;resetPositions();updateScore();
     document.getElementById('overlay').style.display='none';
     document.getElementById('leftName').textContent='BLUE STRIKERS';
@@ -440,7 +477,13 @@ canvas {
     running=false;gameOver=true;document.getElementById('overlay').style.display='flex';
     const menu=document.querySelector('.menu');
     const winner=scoreL===scoreR?'IT’S A DRAW':scoreL>scoreR?'BLUE TAKES IT!':(mode==='ai'?'AI WINS!':'RED TAKES IT!');
-    menu.innerHTML=`<h1><em>${winner}</em></h1><p>Final score: <b>${scoreL} — ${scoreR}</b></p><p>Run it back?</p><div class="mode-buttons"><button class="primary" id="againBtn">↻ Rematch</button><button id="menuBtn">Change Mode</button></div><p class="small">Blue: WASD · C shoot · V stun<br>Red: Arrow keys · K shoot · L stun</p>`;
+    menu.innerHTML=`<h1><em>${winner}</em></h1><p>Final score: <b>${scoreL} — ${scoreR}</b></p><p>Run it back?</p><div class="character-picks">
+         <div><label for="blueCharacter">🔵 BLUE CHARACTER</label><select id="blueCharacter"></select></div>
+         <div><label for="redCharacter">🔴 RED / AI CHARACTER</label><select id="redCharacter"></select></div>
+       </div>
+       <p class="character-stats" id="characterStats">Choose your players.</p>
+       <div class="mode-buttons"><button class="primary" id="againBtn">↻ Rematch</button><button id="menuBtn">Change Mode</button></div><p class="small">Blue: WASD · C shoot · V stun<br>Red: Arrow keys · K shoot · L stun</p>`;
+    fillCharacterPickers();
     document.getElementById('againBtn').onclick=()=>start(mode);
     document.getElementById('menuBtn').onclick=()=>location.reload();
   }
@@ -467,7 +510,8 @@ canvas {
       const goalX=p.side===0?field.x+field.w+30:field.x-30;
       dx=dx*.42+Math.sign(goalX-ball.x)*.82;dy=dy*.42+dy*.58;
       mag=Math.hypot(dx,dy)||1;dx/=mag;dy/=mag;
-      ball.vx=dx*380+p.vx*.20;ball.vy=dy*380+p.vy*.20;
+      const shotSpeed=p.stats.shot*0.65;
+      ball.vx=dx*shotSpeed+p.vx*.20;ball.vy=dy*shotSpeed+p.vy*.20;
       ball.shotLock=p.side;ball.shotLockTimer=.42;
       beep(250,.1,'square',.04);p.flash=.14;showToast('💥 POWER SHOT!');
     } else {
@@ -498,7 +542,7 @@ canvas {
       if(keys[p.controls.up])iy--;if(keys[p.controls.down])iy++;
     }
     if(ix||iy){const m=Math.hypot(ix,iy);ix/=m;iy/=m;p.aimX=ix;p.aimY=iy;}
-    const speed=p.stun>0?62:(isAI?(p.aiSpeed||260):260);
+    const speed=p.stun>0?62:(isAI?((p.aiSpeed||260)*(p.stats.speed/260)):p.stats.speed);
     const accel=p.stun>0?3.5:11;
     p.vx+=(ix*speed-p.vx)*Math.min(1,accel*dt);p.vy+=(iy*speed-p.vy)*Math.min(1,accel*dt);
     p.x+=p.vx*dt;p.y+=p.vy*dt;
@@ -638,6 +682,7 @@ function drawPlayer(p) {
   ctx.font = '900 11px system-ui';
   ctx.textAlign = 'center';
   ctx.fillText(p.side === 0 ? '1' : '2', 0, 4);
+   ctx.font='800 8px system-ui';ctx.textAlign='center';ctx.fillStyle='#f5ffe9';ctx.fillText(p.stats?p.stats.name:'',0,27);
 
   if (p.flash > 0) {
     ctx.strokeStyle = '#eaff7a';
@@ -756,13 +801,20 @@ function drawBall() {
     menu.innerHTML=`<h1>OWN THE <em>PITCH.</em></h1><p>Outplay your rival, blast the ball into the goal, and stun anyone who gets in your way.</p>
       <label for="difficulty" style="display:block;text-align:left;font-size:12px;font-weight:900;letter-spacing:1px;color:#c7ff38;margin-top:16px">AI DIFFICULTY</label>
       <select id="difficulty" style="width:100%;margin-top:7px"><option value="easy">Easy — relaxed opponent</option><option value="medium" selected>Medium — balanced match</option><option value="hard">Hard — fast and aggressive</option><option value="expert">Expert — elite rival</option></select>
+      <div class="character-picks">
+        <div><label for="blueCharacter">🔷 BLUE CHARACTER</label><select id="blueCharacter"></select></div>
+        <div><label for="redCharacter">🟥 RED / AI CHARACTER</label><select id="redCharacter"></select></div>
+      </div>
+      <p class="character-stats" id="characterStats">Choose your players.</p>
       <div class="mode-buttons"><button class="primary" id="aiBtn">🤖 Play vs AI</button><button id="twoBtn">⚽ 2 Player</button></div>
       <p class="small">BLUE: WASD move · C shoot · V stun<br>RED / PLAYER 2: Arrow keys move · K shoot · L stun</p><p class="small">Tip: Get close to the ball before shooting. Stun has a cooldown!</p>`;
+    fillCharacterPickers();
     document.getElementById('aiBtn').onclick=()=>start('ai');
     document.getElementById('twoBtn').onclick=()=>start('two');
   };
   document.getElementById('pauseBtn').onclick=()=>{if(!running)return;paused=!paused;document.getElementById('pauseBtn').textContent=paused?'▶ Resume':'Ⅱ Pause';};
   document.getElementById('soundBtn').onclick=()=>{sound=!sound;document.getElementById('soundBtn').textContent='♪ Sound: '+(sound?'On':'Off');};
+  fillCharacterPickers();
   draw();requestAnimationFrame(loop);
 })();
 </script>
